@@ -216,7 +216,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div style="font-size:10px;color:#AAA;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;font-weight:600">Coderhouse CX</div>
     <div style="font-size:22px;font-weight:800;color:#22213A;margin-bottom:6px;letter-spacing:-.3px">Devoluciones 2026</div>
     <div style="font-size:12px;color:#AAA;margin-bottom:24px;font-weight:500">Acceso restringido</div>
-    <input id="pi" type="password" placeholder="Contrasena de acceso"
+    <input id="pi" type="password" placeholder="Contraseña de acceso"
       style="width:100%;border:2px solid #EBE3DE;border-radius:12px;padding:13px 15px;font-size:14px;outline:none;margin-bottom:8px;display:block;font-family:inherit;color:#22213A;transition:border-color .15s"
       onfocus="this.style.borderColor='#F95B35'" onblur="this.style.borderColor='#EBE3DE'"
       onkeydown="if(event.key=='Enter')doPwd()">
@@ -235,7 +235,7 @@ var PASS=atob('""" + PASS_B64 + """');
 var SK='cdh_dvs_2026';
 var cT=null,cTp=null;
 (function(){if(sessionStorage.getItem(SK)==='1'){document.getElementById('lov').style.display='none';}})();
-function doPwd(){var v=document.getElementById('pi').value,pe=document.getElementById('pe'),pb=document.getElementById('pbtn');if(!v){pe.textContent='Ingresa tu contrasena';return;}pb.textContent='...';pb.disabled=true;pe.textContent='';setTimeout(function(){if(v===PASS){sessionStorage.setItem(SK,'1');document.getElementById('lov').style.display='none';}else{pe.textContent='Contrasena incorrecta';document.getElementById('pi').value='';document.getElementById('lbx').classList.add('shk');setTimeout(function(){document.getElementById('lbx').classList.remove('shk');},400);pb.textContent='Ingresar';pb.disabled=false;document.getElementById('pi').focus();}},300);}
+function doPwd(){var v=document.getElementById('pi').value,pe=document.getElementById('pe'),pb=document.getElementById('pbtn');if(!v){pe.textContent='Ingresa tu contraseña';return;}pb.textContent='...';pb.disabled=true;pe.textContent='';setTimeout(function(){if(v===PASS){sessionStorage.setItem(SK,'1');document.getElementById('lov').style.display='none';}else{pe.textContent='Contraseña incorrecta';document.getElementById('pi').value='';document.getElementById('lbx').classList.add('shk');setTimeout(function(){document.getElementById('lbx').classList.remove('shk');},400);pb.textContent='Ingresar';pb.disabled=false;document.getElementById('pi').focus();}},300);}
 function fmt(n){return '$'+Math.round(n).toLocaleString('es-AR');}
 function pct(a,b){return b>0?((a-b)/b*100):null;}
 function pm(v){if(!v)return 0;v=v.replace(/"/g,'').trim();if(v.indexOf(',')>-1)v=v.replace(/\\./g,'').replace(',','.');return parseFloat(v)||0;}
