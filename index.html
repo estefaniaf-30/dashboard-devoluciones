@@ -1,4 +1,4 @@
-<\!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -140,7 +140,7 @@ body { font-family: -apple-system, 'Inter', sans-serif; background: var(--light)
 </head>
 <body>
 
-<\!-- HEADER -->
+<!-- HEADER -->
 <div class="header">
   <div class="header-left">
     <div class="tag">Coderhouse CX</div>
@@ -159,7 +159,7 @@ body { font-family: -apple-system, 'Inter', sans-serif; background: var(--light)
   </div>
 </div>
 
-<\!-- FILTROS -->
+<!-- FILTROS -->
 <div class="filtros-bar">
   <div class="presets">
     <button class="preset-btn active" data-preset="semana">Esta semana</button>
@@ -184,10 +184,10 @@ body { font-family: -apple-system, 'Inter', sans-serif; background: var(--light)
   </select>
 </div>
 
-<\!-- MAIN -->
+<!-- MAIN -->
 <div class="main">
 
-  <\!-- KPIS -->
+  <!-- KPIS -->
   <div class="kpis">
     <div class="kpi">
       <div class="lbl">Total devoluciones</div>
@@ -211,13 +211,13 @@ body { font-family: -apple-system, 'Inter', sans-serif; background: var(--light)
     </div>
   </div>
 
-  <\!-- TENDENCIA -->
+  <!-- TENDENCIA -->
   <div class="card" style="margin-bottom:20px">
     <div class="card-title" id="tendencia-title">Tendencia de devoluciones</div>
     <canvas id="chartTendencia" style="max-height:200px"></canvas>
   </div>
 
-  <\!-- TIPOS DE BAJA + MOTIVOS -->
+  <!-- TIPOS DE BAJA + MOTIVOS -->
   <div class="grid-3-2" style="margin-bottom:20px">
     <div class="card">
       <div class="card-title">Motivos de baja</div>
@@ -229,7 +229,7 @@ body { font-family: -apple-system, 'Inter', sans-serif; background: var(--light)
     </div>
   </div>
 
-  <\!-- PRODUCTO -->
+  <!-- PRODUCTO -->
   <div class="card">
     <div class="card-title">Devoluciones por producto</div>
     <div class="tabs">
@@ -258,7 +258,7 @@ const fmt = n => '$' + Math.round(n).toLocaleString('es-AR');
 const pct = (a, b) => b > 0 ? ((a - b) / b * 100).toFixed(1) : null;
 
 function parseMonto(val) {
-  if (\!val) return 0;
+  if (!val) return 0;
   val = val.replace(/"/g,'').trim();
   if (val.includes(',')) val = val.replace(/\./g,'').replace(',','.');
   return parseFloat(val) || 0;
@@ -298,8 +298,8 @@ function getPrevPeriod(from, to) {
 function filterData(from, to, extraTipo, extraProducto) {
   return DATA.filter(r => {
     if (r.f < from || r.f > to) return false;
-    if (extraTipo && r.t \!== extraTipo) return false;
-    if (extraProducto && r.d \!== extraProducto) return false;
+    if (extraTipo && r.t !== extraTipo) return false;
+    if (extraProducto && r.d !== extraProducto) return false;
     return true;
   });
 }
@@ -321,7 +321,7 @@ function groupByDay(rows, from, to) {
   for (let d = new Date(f); d <= t; d.setDate(d.getDate()+1)) {
     map[toDateStr(new Date(d))] = 0;
   }
-  rows.forEach(r => { if (map[r.f] \!== undefined) map[r.f]++; });
+  rows.forEach(r => { if (map[r.f] !== undefined) map[r.f]++; });
   return map;
 }
 
@@ -357,7 +357,7 @@ function render() {
   const tipo  = document.getElementById('f-tipo').value;
   const prod  = document.getElementById('f-producto').value;
 
-  if (\!desde || \!hasta) return;
+  if (!desde || !hasta) return;
 
   const rows = filterData(desde, hasta, tipo, prod);
   const prev = getPrevPeriod(desde, hasta);
@@ -380,7 +380,7 @@ function render() {
 
   const cambio = pct(total, prevTotal);
   const cambioBadge = document.getElementById('h-cambio');
-  if (cambio \!== null) {
+  if (cambio !== null) {
     const arrow = cambio >= 0 ? '▲' : '▼';
     const color = cambio >= 0 ? '#ffcec4' : '#bbf7d0';
     cambioBadge.style.background = color;
@@ -421,7 +421,7 @@ function render() {
 
 function renderDelta(id, cur, prev, isMonto) {
   const el = document.getElementById(id);
-  if (\!prev) { el.textContent = ''; return; }
+  if (!prev) { el.textContent = ''; return; }
   const diff = pct(cur, prev);
   const arrow = diff >= 0 ? '▲' : '▼';
   const cls   = diff >= 0 ? 'delta-up' : 'delta-down';
@@ -502,7 +502,7 @@ function renderTipoBaja(rows) {
 function renderMotivos(rows) {
   const motivos = counter(rows, 'm').slice(0,8);
   const ml = document.getElementById('motivos-list');
-  if (\!motivos.length) { ml.innerHTML = '<div class="empty">Sin datos para el período</div>'; return; }
+  if (!motivos.length) { ml.innerHTML = '<div class="empty">Sin datos para el período</div>'; return; }
   const max = motivos[0][1];
   ml.innerHTML = motivos.map(([m,n],i) => `
     <div class="motivo-row">
@@ -529,7 +529,7 @@ function renderTab(rows, tab) {
   const ranking = counter(filtered, 'd').slice(0,10);
   const content = document.getElementById('tab-content');
 
-  if (\!ranking.length) {
+  if (!ranking.length) {
     content.innerHTML = '<div class="empty">Sin devoluciones en este período</div>';
     return;
   }
@@ -644,7 +644,7 @@ function init() {
 init();
 </script>
 
-<\!-- LOGIN OVERLAY -->
+<!-- LOGIN OVERLAY -->
 <div id="login-overlay" style="
   position:fixed; inset:0; z-index:9999;
   background: linear-gradient(135deg, #F8512E 0%, #2B2D42 100%);
@@ -698,7 +698,7 @@ init();
     this.style.borderColor = '#F8512E';
   });
   document.getElementById('pwd-input').addEventListener('blur', function() {
-    if (\!document.getElementById('pwd-error').textContent) this.style.borderColor = '#eee';
+    if (!document.getElementById('pwd-error').textContent) this.style.borderColor = '#eee';
   });
 })();
 </script>
@@ -716,7 +716,7 @@ init();
       style="width:100%;border:2px solid #eee;border-radius:10px;padding:12px 16px;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .2s;"
       onkeydown="if(event.key==='Enter')checkPwd()"
       onfocus="this.style.borderColor='#F8512E'"
-      onblur="if(\!document.getElementById('pwd-error').textContent)this.style.borderColor='#eee'">
+      onblur="if(!document.getElementById('pwd-error').textContent)this.style.borderColor='#eee'">
     <div id="pwd-error" style="color:#F8512E;font-size:12px;margin-bottom:10px;min-height:18px;font-weight:500;"></div>
     <button id="login-btn" onclick="checkPwd()"
       style="width:100%;background:#F8512E;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px;"
@@ -739,7 +739,7 @@ init();
     var btn = document.getElementById('login-btn');
     var err = document.getElementById('pwd-error');
     var box = document.getElementById('login-box');
-    if(\!val){
+    if(!val){
       err.textContent = 'Ingresá una contraseña';
       return;
     }
