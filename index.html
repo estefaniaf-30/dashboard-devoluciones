@@ -165,7 +165,59 @@ function rTend(rows,prows,desde,hasta,pv,bySem){var byC=bySem?gByWk(rows):gByDay
 function rTipo(rows){var tipos=cnt(rows,'t');if(cTp)cTp.destroy();cTp=new Chart(document.getElementById('cTipo'),{type:'doughnut',data:{labels:tipos.map(function(t){return t[0];}),datasets:[{data:tipos.map(function(t){return t[1];}),backgroundColor:['#F95B35','#E8197D','#9CA3AF','#FB8C71','#3A86FF','#06D6A0'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#8896A5'}}},cutout:'58%'}});}
 function rMot(rows){var ms=cnt(rows,'m',norm).slice(0,8),el=document.getElementById('motDiv');if(!ms.length){el.innerHTML='<div class="empty">Sin datos</div>';return;}var max=ms[0][1],h='';for(var i=0;i<ms.length;i++){var cn=i===0?'rn':i===1?'rn b':'rn c';h+='<div class="rrow"><div class="'+cn+'">'+(i+1)+'</div><div class="rb"><div class="rl">'+ms[i][0]+'</div><div class="rbb"><div class="rbf" style="width:'+(ms[i][1]/max*100).toFixed(0)+'%"></div></div></div><div class="rc">'+ms[i][1]+'</div></div>';}el.innerHTML=h;}
 function rProd(rows){var map={curso:{id:'pCurso',lbl:'Cursos'},carrera:{id:'pCarrera',lbl:'Carreras'},diplomatura:{id:'pDiplo',lbl:'Diplomaturas'}};Object.keys(map).forEach(function(tab){var filtered=rows.filter(function(r){return (r.p||'').toLowerCase()===tab;}),ranking=cntNorm(filtered,'d').slice(0,6),max=ranking.length?ranking[0][1]:1;var h='<div class="ptl">'+map[tab].lbl+'<span>'+filtered.length+'</span></div>';if(!ranking.length){h+='<div class="empty">Sin datos</div>';document.getElementById(map[tab].id).innerHTML=h;return;}for(var i=0;i<ranking.length;i++){var cn=i===0?'rn':i===1?'rn b':'rn c';h+='<div class="rrow"><div class="'+cn+'">'+(i+1)+'</div><div class="rb"><div class="rl">'+ranking[i][0]+'</div><div class="rbb"><div class="rbf" style="width:'+(ranking[i][1]/max*100).toFixed(0)+'%"></div></div></div><div class="rc">'+ranking[i][1]+'</div></div>';}document.getElementById(map[tab].id).innerHTML=h;});}
-function rIns(rows,prows,tot,ptot,mnt,pmnt){var ins=[];if(ptot>0){var d=pct(tot,ptot),baja=d<0;ins.push({icon:baja?'📉':'📈',cls:baja?'g':'r',lbl:'Variacion total',txt:baja?'Bajaron '+Math.abs(d).toFixed(1)+'% vs periodo anterior ('+ptot+' -> '+tot+').':'Subieron '+d.toFixed(1)+'% vs periodo anterior ('+ptot+' -> '+tot+').'});}var ms=cnt(rows,'m',norm);if(ms.length){var pct0=tot>0?(ms[0][1]/tot*100).toFixed(0):0;ins.push({icon:'🔍',cls:'',lbl:'Principal motivo',txt:'"'+ms[0][0]+'" concentra el '+pct0+'% ('+ms[0][1]+' casos).'});}var tipos=cnt(rows,'t');if(tipos.length){ins.push({icon:'📋',cls:'',lbl:'Tipo dominante',txt:'"'+tipos[0][0]+'" con '+tipos[0][1]+' casos de '+tot+'.'});}var topC=cntNorm(rows.filter(function(r){return (r.p||'').toLowerCase()==='curso';}), 'd'),topK=cntNorm(rows.filter(function(r){return (r.p||'').toLowerCase()==='carrera';}), 'd'),top=topC.length&&(!topK.length||topC[0][1]>=topK[0][1])?{n:topC[0][0],v:topC[0][1],t:'Curso'}:topK.length?{n:topK[0][0],v:topK[0][1],t:'Carrera'}:null;if(top)ins.push({icon:'📚',cls:'',lbl:'Producto mas afectado',txt:top.t+' "'+top.n+'" con '+top.v+' devoluciones.'});var p40=rows.filter(function(r){return r.pl==='Si';}).length,p40p=tot>0?(p40/tot*100).toFixed(0):0;ins.push({icon:'💻',cls:'',lbl:'Plataforma 4.0',txt:p40p+'% de las bajas son alumnos en 4.0 ('+p40+' casos).'});var pa=cnt(rows,'pa');if(pa.length>1){var pp=tot>0?(pa[0][1]/tot*100).toFixed(0):0;ins.push({icon:'🌎',cls:'',lbl:'Pais lider',txt:pa[0][0]+' concentra el '+pp+'% ('+pa[0][1]+' de '+tot+').'});}document.getElementById('igrd').innerHTML=ins.map(function(x){return '<div class="ic '+x.cls+'"><div class="ii">'+x.icon+'</div><div class="il">'+x.lbl+'</div><div class="it">'+x.txt+'</div></div>';}).join('');}
+function rIns(rows,prows,tot,ptot,mnt,pmnt){var ins=[];if(ptot>0){var d=pct(tot,ptot),baja=d<0;ins.push({icon:baja?'📉':'📈',cls:baja?'g':'r',lbl:'Variacion total',txt:baja?'Bajaron '+Math.abs(d).toFixed(1)+'% vs periodo anterior ('+ptot+' -> '+tot+').':'Subieron '+d.toFixed(1)+'% vs periodo anterior ('+ptot+' -> '+tot+').'});}var ms=cnt(rows,'m',norm);if(ms.length){var pct0=tot>0?(ms[0][1]/tot*100).toFixed(0):0;ins.push({icon:'🔍',cls:'',lbl:'Principal motivo',txt:'"'+ms[0][0]+'" concentra el '+pct0+'% ('+ms[0][1]+' casos).'});}var tipos=cnt(rows,'t');if(tipos.length){ins.push({icon:'📋',cls:'',lbl:'Tipo dominante',txt:'"'+tipos[0][0]+'" con '+tipos[0][1]+' casos de '+tot+'.'});}var topC=cntNorm(rows.filter(function(r){return (r.p||'').toLowerCase()==='curso';}), 'd'),topK=cntNorm(rows.filter(function(r){return (r.p||'').toLowerCase()==='carrera';}), 'd'),top=topC.length&&(!topK.length||topC[0][1]>=topK[0][1])?{n:topC[0][0],v:topC[0][1],t:'Curso'}:topK.length?{n:topK[0][0],v:topK[0][1],t:'Carrera'}:null;if(top)ins.push({icon:'📚',cls:'',lbl:'Producto mas afectado',txt:top.t+' "'+top.n+'" con '+top.v+' devoluciones.'});var p40=rows.filter(function(r){return r.pl==='Si';}).length,p40p=tot>0?(p40/tot*100).toFixed(0):0;ins.push({icon:'💻',cls:'',lbl:'Plataforma 4.0',txt:p40p+'% de las bajas son alumnos en 4.0 ('+p40+' casos).'});var pa=cnt(rows,'pa');if(pa.length>1){var pp=tot>0?(pa[0][1]/tot*100).toFixed(0):0;ins.push({icon:'🌎',cls:'',lbl:'Pais lider',txt:pa[0][0]+' concentra el '+pp+'% ('+pa[0][1]+' de '+tot+').'});}
+// ── INSIGHT: comisiones bajo presión (excepciones concentradas en un curso) ──
+var excRows=rows.filter(function(r){return (r.t||'').toLowerCase().indexOf('excep')>-1;});
+if(excRows.length>=2){
+  var excByCurso=cntNorm(excRows,'d');
+  if(excByCurso.length&&excByCurso[0][1]>=2){
+    var excPct=tot>0?(excRows.length/tot*100).toFixed(0):0;
+    var excTxt='"'+excByCurso[0][0]+'" lidera con '+excByCurso[0][1]+' excepciones';
+    if(excByCurso[1]&&excByCurso[1][1]>=2)excTxt+=' · "'+excByCurso[1][0]+'" con '+excByCurso[1][1];
+    excTxt+='. El '+excPct+'% del total son excepciones.';
+    ins.push({icon:'🔥',cls:'r',lbl:'Comisión bajo presión',txt:excTxt});
+  }
+}
+// ── INSIGHT: tendencias por producto vs período anterior ──
+if(ptot>0&&tot>=3){
+  var curMap={},prvMap={};
+  cntNorm(rows,'d').forEach(function(e){curMap[e[0].toLowerCase()]={n:e[0],v:e[1]};});
+  cntNorm(prows,'d').forEach(function(e){prvMap[e[0].toLowerCase()]={n:e[0],v:e[1]};});
+  // Buscamos el mayor repunte (sube fuerte vs anterior)
+  var maxRise=null;
+  Object.keys(curMap).forEach(function(k){
+    var cur=curMap[k].v,prv=(prvMap[k]||{v:0}).v;
+    var diff=cur-prv;
+    if(cur>=3&&diff>=2&&(!maxRise||diff>maxRise.diff))maxRise={n:curMap[k].n,cur:cur,prv:prv,diff:diff};
+  });
+  if(maxRise)ins.push({icon:'📈',cls:'r',lbl:'Tendencia al alza',txt:'"'+maxRise.n+'" pasó de '+maxRise.prv+' a '+maxRise.cur+' bajas vs período anterior — está escalando.'});
+  // Buscamos el mayor descenso (baja fuerte vs anterior)
+  var maxDrop=null;
+  Object.keys(prvMap).forEach(function(k){
+    var prv=prvMap[k].v,cur=(curMap[k]||{v:0}).v;
+    var diff=prv-cur;
+    if(prv>=3&&diff>=2&&(!maxDrop||diff>maxDrop.diff))maxDrop={n:prvMap[k].n,cur:cur,prv:prv,diff:diff};
+  });
+  if(maxDrop)ins.push({icon:'📉',cls:'g',lbl:'Tendencia a la baja',txt:'"'+maxDrop.n+'" bajó de '+maxDrop.prv+' a '+maxDrop.cur+' bajas vs período anterior — señal positiva.'});
+}
+// ── INSIGHT: tendencia interna (primera vs segunda mitad del período) ──
+if(tot>=6){
+  var sortedDates=Array.from(new Set(rows.map(function(r){return r.f;}))).sort();
+  if(sortedDates.length>=2){
+    var midDate=sortedDates[Math.floor(sortedDates.length/2)];
+    var h1=rows.filter(function(r){return r.f<midDate;}),h2=rows.filter(function(r){return r.f>=midDate;});
+    var h1Map={},h2Map={};
+    cntNorm(h1,'d').forEach(function(e){h1Map[e[0].toLowerCase()]={n:e[0],v:e[1]};});
+    cntNorm(h2,'d').forEach(function(e){h2Map[e[0].toLowerCase()]={n:e[0],v:e[1]};});
+    var maxIntern=null;
+    Object.keys(h2Map).forEach(function(k){
+      var v2=h2Map[k].v,v1=(h1Map[k]||{v:0}).v;
+      if(v2>=3&&v2>=v1*2&&(!maxIntern||v2>maxIntern.v2))maxIntern={n:h2Map[k].n,v1:v1,v2:v2};
+    });
+    if(maxIntern)ins.push({icon:'⚠️',cls:'r',lbl:'Acelerándose en el período',txt:'"'+maxIntern.n+'" pasó de '+maxIntern.v1+' bajas en la primera mitad a '+maxIntern.v2+' en la segunda — tendencia creciente dentro del mismo período.'});
+  }
+}
+document.getElementById('igrd').innerHTML=ins.map(function(x){return '<div class="ic '+x.cls+'"><div class="ii">'+x.icon+'</div><div class="il">'+x.lbl+'</div><div class="it">'+x.txt+'</div></div>';}).join('');}
 function setPreset(p){var t=new Date(),from,to;window._pvFrom=null;window._pvTo=null;if(p==='semana'){var b=wkB(t);from=b.from;to=tods(t);window._pvFrom=tods(addD(new Date(from+'T12:00:00'),-7));window._pvTo=tods(addD(new Date(to+'T12:00:00'),-7));}else if(p==='semana-ant'){var b=wkB(t),pv=prev(b.from,b.to);from=pv.from;to=pv.to;}else if(p==='mes'){var b=moB(t);from=b.from;to=tods(t);}else if(p==='mes-ant'){var d=new Date(t.getFullYear(),t.getMonth()-1,1),b=moB(d);from=b.from;to=b.to;}else if(p==='anio'){from='2026-01-01';to=tods(t);}document.getElementById('fD').value=from;document.getElementById('fH').value=to;render();}
 function init(){var tipos=Array.from(new Set(DATA.map(function(r){return r.t;}).filter(Boolean))).sort(),ts=document.getElementById('fT');tipos.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;ts.appendChild(o);});var seen={},prods=[];DATA.forEach(function(r){var d=(r.d||'').trim(),k=d.toLowerCase();if(k&&!seen[k]){seen[k]=true;prods.push(d);}});prods.sort();var ps=document.getElementById('fP');prods.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d;ps.appendChild(o);});document.querySelectorAll('.pbt').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});b.classList.add('active');setPreset(b.dataset.p);});});['fD','fH'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});window._pvFrom=null;window._pvTo=null;render();});});document.getElementById('fT').addEventListener('change',render);document.getElementById('fP').addEventListener('change',render);setPreset('semana');}
 init();
