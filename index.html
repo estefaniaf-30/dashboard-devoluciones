@@ -80,8 +80,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 </div>
 <div class="fbar">
   <div class="fbar-r1">
-    <button class="pbt active" data-p="semana">Esta semana</button>
-    <button class="pbt" data-p="semana-ant">Sem. anterior</button>
+    <span id="wkBtns"></span>
     <button class="pbt" data-p="mes">Este mes</button>
     <button class="pbt" data-p="mes-ant">Mes anterior</button>
     <button class="pbt" data-p="anio">2026 completo</button>
@@ -218,8 +217,20 @@ if(tot>=6){
   }
 }
 document.getElementById('igrd').innerHTML=ins.map(function(x){return '<div class="ic '+x.cls+'"><div class="ii">'+x.icon+'</div><div class="il">'+x.lbl+'</div><div class="it">'+x.txt+'</div></div>';}).join('');}
-function setPreset(p){var t=new Date(),from,to;window._pvFrom=null;window._pvTo=null;if(p==='semana'){var b=wkB(t);from=b.from;to=tods(t);window._pvFrom=tods(addD(new Date(from+'T12:00:00'),-7));window._pvTo=tods(addD(new Date(to+'T12:00:00'),-7));}else if(p==='semana-ant'){var b=wkB(t),pv=prev(b.from,b.to);from=pv.from;to=pv.to;}else if(p==='mes'){var b=moB(t);from=b.from;to=tods(t);var prevMo=moB(new Date(t.getFullYear(),t.getMonth()-1,1));window._pvFrom=prevMo.from;window._pvTo=prevMo.to;}else if(p==='mes-ant'){var d=new Date(t.getFullYear(),t.getMonth()-1,1),b=moB(d);from=b.from;to=b.to;}else if(p==='anio'){from='2026-01-01';to=tods(t);}document.getElementById('fD').value=from;document.getElementById('fH').value=to;render();}
-function init(){var tipos=Array.from(new Set(DATA.map(function(r){return r.t;}).filter(Boolean))).sort(),ts=document.getElementById('fT');tipos.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;ts.appendChild(o);});var seen={},prods=[];DATA.forEach(function(r){var d=(r.d||'').trim(),k=d.toLowerCase();if(k&&!seen[k]){seen[k]=true;prods.push(d);}});prods.sort();var ps=document.getElementById('fP');prods.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d;ps.appendChild(o);});document.querySelectorAll('.pbt').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});b.classList.add('active');setPreset(b.dataset.p);});});['fD','fH'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});window._pvFrom=null;window._pvTo=null;render();});});document.getElementById('fT').addEventListener('change',render);document.getElementById('fP').addEventListener('change',render);setPreset('semana');}
+function getMonthWeeks(){
+  var t=new Date(),yr=t.getFullYear(),mo=t.getMonth();
+  var today=tods(t);
+  var lastDay=new Date(yr,mo+1,0).getDate();
+  var bounds=[[1,7],[8,14],[15,21],[22,28]];
+  if(lastDay>28)bounds.push([29,lastDay]);
+  return bounds.map(function(b,i){
+    var fr=tods(new Date(yr,mo,b[0])),to=tods(new Date(yr,mo,Math.min(b[1],lastDay)));
+    var started=fr<=today,done=to<today;
+    return{label:'W'+(i+1),from:fr,to:to,started:started,done:done};
+  });
+}
+function setPreset(p){var t=new Date(),from,to;window._pvFrom=null;window._pvTo=null;if(p.charAt(0)==='w'){var wi=parseInt(p.slice(1))-1,wks=getMonthWeeks(),w=wks[wi];if(!w||!w.started)return;from=w.from;to=w.to;if(wi>0){window._pvFrom=wks[wi-1].from;window._pvTo=wks[wi-1].to;}else{window._pvFrom=null;window._pvTo=null;}}else if(p==='mes'){var b=moB(t);from=b.from;to=tods(t);var prevMo=moB(new Date(t.getFullYear(),t.getMonth()-1,1));window._pvFrom=prevMo.from;window._pvTo=prevMo.to;}else if(p==='mes-ant'){var d=new Date(t.getFullYear(),t.getMonth()-1,1),b=moB(d);from=b.from;to=b.to;}else if(p==='anio'){from='2026-01-01';to=tods(t);}document.getElementById('fD').value=from;document.getElementById('fH').value=to;render();}
+function init(){var tipos=Array.from(new Set(DATA.map(function(r){return r.t;}).filter(Boolean))).sort(),ts=document.getElementById('fT');tipos.forEach(function(t){var o=document.createElement('option');o.value=t;o.textContent=t;ts.appendChild(o);});var seen={},prods=[];DATA.forEach(function(r){var d=(r.d||'').trim(),k=d.toLowerCase();if(k&&!seen[k]){seen[k]=true;prods.push(d);}});prods.sort();var ps=document.getElementById('fP');prods.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent=d;ps.appendChild(o);});document.querySelectorAll('.pbt').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});b.classList.add('active');setPreset(b.dataset.p);});});['fD','fH'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});window._pvFrom=null;window._pvTo=null;render();});});document.getElementById('fT').addEventListener('change',render);document.getElementById('fP').addEventListener('change',render);var wkBtns=document.getElementById('wkBtns');var wks=getMonthWeeks();var lastCompletedW=-1;wks.forEach(function(w,i){var btn=document.createElement('button');btn.className='pbt';btn.dataset.p='w'+(i+1);var mo=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];var fd=new Date(w.from+'T12:00:00'),td=new Date(w.to+'T12:00:00');var rangeLabel=fd.getDate()+'/'+('0'+(fd.getMonth()+1)).slice(-2)+'-'+td.getDate()+'/'+('0'+(td.getMonth()+1)).slice(-2);btn.title=rangeLabel;if(!w.started){btn.textContent=w.label;btn.disabled=true;btn.style.opacity='0.35';btn.style.cursor='not-allowed';}else if(!w.done){btn.textContent=w.label+' ∙';btn.title=rangeLabel+' (en curso)';}else{btn.textContent=w.label;lastCompletedW=i;}btn.addEventListener('click',function(){document.querySelectorAll('.pbt').forEach(function(x){x.classList.remove('active');});btn.classList.add('active');setPreset(btn.dataset.p);});wkBtns.appendChild(btn);if(i<wks.length-1){var sp=document.createElement('span');sp.style.fontSize='10px';sp.style.color='var(--bd)';sp.style.margin='0 1px';sp.textContent='';wkBtns.appendChild(sp);}});var defaultPreset=lastCompletedW>=0?'w'+(lastCompletedW+1):'mes';var allBtns=document.querySelectorAll('.pbt');allBtns.forEach(function(b){if(b.dataset.p===defaultPreset)b.classList.add('active');});setPreset(defaultPreset);}
 init();
 </script>
 </body>
