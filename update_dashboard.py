@@ -26,7 +26,7 @@ def find_col(headers, *candidates):
                 return h
     return None
 
-col_fecha  = find_col(headers, 'fecha')
+col_fecha  = find_col(headers, 'fecha de devoluc', 'devolución', 'fecha')
 col_prod   = find_col(headers, 'producto')
 col_det    = find_col(headers, 'curso', 'carrera', 'detalle', 'servicio')
 col_tipo   = find_col(headers, 'tipo')
