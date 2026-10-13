@@ -35,6 +35,18 @@ col_monto  = find_col(headers, 'monto', 'importe')
 col_moneda = find_col(headers, 'moneda')
 col_pais   = find_col(headers, 'pais', 'país')
 col_plat   = find_col(headers, 'plataforma', '4.0')
+col_mail   = find_col(headers, 'correo', 'mail')
+
+# Casos recuperados: figuran en la planilla pero NO se cuentan en el dashboard.
+# clave = (correo, fecha de devolucion YYYY-MM-DD). El correo no se publica en la pagina.
+RECUPERADOS = {
+    ('agustin06penaloza@gmail.com', '2026-10-06'): {
+        'fecha': '06/10/2026',
+        'prod': 'Diplomatura Data Science',
+        'nota': 'Error de pago (se cobro en 1 cuota en lugar de 12). Se reembolso y el estudiante recompro en 12 cuotas el 08/10; sigue cursando. No es una baja.',
+    },
+}
+recuperados_hit = []
 
 print(f"Mapeo: fecha={col_fecha}, prod={col_prod}, det={col_det}, tipo={col_tipo}")
 print(f"       motivo={col_motivo}, monto={col_monto}, moneda={col_moneda}, pais={col_pais}, plat={col_plat}")
@@ -68,6 +80,10 @@ for row in reader:
     fecha = norm_fecha(row.get(col_fecha, '') if col_fecha else '')
     if not fecha.startswith('2026'):
         continue
+    mail = (row.get(col_mail, '') if col_mail else '').strip().lower()
+    if (mail, fecha) in RECUPERADOS:
+        recuperados_hit.append(RECUPERADOS[(mail, fecha)])
+        continue
     records.append({
         'f':  fecha,
         'p':  prod,
@@ -81,6 +97,16 @@ for row in reader:
     })
 
 print(f"Registros 2026 validos: {len(records)}")
+print(f"Casos recuperados excluidos del conteo: {len(recuperados_hit)}")
+
+import html as _html
+if recuperados_hit:
+    _items = ''.join('<li><b>%s</b> (%s): %s</li>' % (_html.escape(r['prod']), r['fecha'], _html.escape(r['nota'])) for r in recuperados_hit)
+    RECUP_HTML = ('<div class="card" id="recup" style="border-left:3px solid #10B981;padding:14px 20px">'
+                  '<h3 style="margin-bottom:8px">Casos recuperados (no incluidos en el conteo)</h3>'
+                  '<ul style="margin-left:18px;font-size:12px;line-height:1.6">%s</ul></div>' % _items)
+else:
+    RECUP_HTML = ''
 
 # ── GENERAR HTML ──────────────────────────────────────────────────────────────
 DATA_JSON_STR = json.dumps(records, ensure_ascii=True)
@@ -418,6 +444,7 @@ init();
 </html>""")
 
 HTML = ''.join(parts)
+HTML = HTML.replace('<div class="main">', '<div class="main">' + RECUP_HTML, 1)
 
 out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'index.html')
 with open(out_path, 'w', encoding='utf-8') as f:
