@@ -80,6 +80,8 @@ for row in reader:
         _det = (row.get(col_det, '') if col_det else '').lower()
         if 'coderpro' in _det or 'membres' in _det:
             prod = 'coderpro'
+        elif 'paid media' in _det or 'ciberseg' in _det:
+            prod = 'curso'
     if prod in EXCLUIR:
         continue
     fecha = norm_fecha(row.get(col_fecha, '') if col_fecha else '')
@@ -92,7 +94,7 @@ for row in reader:
     records.append({
         'f':  fecha,
         'p':  prod,
-        'd':  (row.get(col_det, '') if col_det else '').strip(),
+        'd':  ('CoderPRO / Membresía PRO' if prod == 'coderpro' else (row.get(col_det, '') if col_det else '').strip()),
         't':  (row.get(col_tipo, '') if col_tipo else '').strip(),
         'm':  (row.get(col_motivo, '') if col_motivo else '').strip(),
         'mn': (row.get(col_monto, '') if col_monto else '').strip(),
@@ -166,7 +168,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
 .card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
 .card h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t2);margin-bottom:16px;border-bottom:1px solid var(--bd);padding-bottom:10px}
 .g2{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:18px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:18px}
 .rrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .rn{width:22px;height:22px;border-radius:50%;background:var(--or);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
 .rn.b{background:var(--pk)}.rn.c{background:var(--gy)}
@@ -238,6 +240,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:
     <div class="card" style="margin-bottom:0" id="pCurso"></div>
     <div class="card" style="margin-bottom:0" id="pCarrera"></div>
     <div class="card" style="margin-bottom:0" id="pDiplo"></div>
+    <div class="card" style="margin-bottom:0" id="pPro"></div>
   </div>
   <div style="height:18px"></div>
   <div class="card"><h3>Insights del periodo</h3><div class="igrd" id="igrd"></div></div>
@@ -293,7 +296,7 @@ function render(){var desde=document.getElementById('fD').value,hasta=document.g
 function rTend(rows,prows,desde,hasta,pv,bySem){var byC=bySem?gByWk(rows):gByDay(rows,desde,hasta),byP=bySem?gByWk(prows):gByDay(prows,pv.from,pv.to),labs=Object.keys(byC).sort(),labsP=Object.keys(byP).sort(),lFn=bySem?wlbl:dlbl;document.getElementById('tendTtl').textContent='Tendencia '+(bySem?'semanal':'diaria');if(cT)cT.destroy();cT=new Chart(document.getElementById('cTend'),{type:'bar',data:{labels:labs.map(lFn),datasets:[{label:'Periodo actual',data:labs.map(function(k){return byC[k]||0;}),backgroundColor:'#F95B35',borderRadius:8,order:2},{label:'Periodo anterior',data:labsP.slice(0,labs.length).map(function(k){return byP[k]||0;}),type:'line',borderColor:'#E8197D',backgroundColor:'transparent',borderWidth:2,borderDash:[4,3],borderDashOffset:0,pointRadius:2,tension:.3,order:1}]},options:{plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:11},color:'#8896A5'}}},scales:{y:{beginAtZero:true,ticks:{precision:0,color:'#8896A5'},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false},ticks:{font:{size:10},color:'#8896A5'}}}}});}
 function rTipo(rows){var tipos=cnt(rows,'t');if(cTp)cTp.destroy();cTp=new Chart(document.getElementById('cTipo'),{type:'doughnut',data:{labels:tipos.map(function(t){return t[0];}),datasets:[{data:tipos.map(function(t){return t[1];}),backgroundColor:['#F95B35','#E8197D','#9CA3AF','#FB8C71','#3A86FF','#06D6A0'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},color:'#8896A5'}}},cutout:'58%'}});}
 function rMot(rows){var ms=cnt(rows,'m',norm).slice(0,8),el=document.getElementById('motDiv');if(!ms.length){el.innerHTML='<div class="empty">Sin datos</div>';return;}var max=ms[0][1],h='';for(var i=0;i<ms.length;i++){var cn=i===0?'rn':i===1?'rn b':'rn c';h+='<div class="rrow"><div class="'+cn+'">'+(i+1)+'</div><div class="rb"><div class="rl">'+ms[i][0]+'</div><div class="rbb"><div class="rbf" style="width:'+(ms[i][1]/max*100).toFixed(0)+'%"></div></div></div><div class="rc">'+ms[i][1]+'</div></div>';}el.innerHTML=h;}
-function rProd(rows){var map={curso:{id:'pCurso',lbl:'Cursos'},carrera:{id:'pCarrera',lbl:'Carreras'},diplomatura:{id:'pDiplo',lbl:'Diplomaturas'}};Object.keys(map).forEach(function(tab){var filtered=rows.filter(function(r){return (r.p||'').toLowerCase()===tab;}),ranking=cntNorm(filtered,'d').slice(0,6),max=ranking.length?ranking[0][1]:1;var h='<div class="ptl">'+map[tab].lbl+'<span>'+filtered.length+'</span></div>';if(!ranking.length){h+='<div class="empty">Sin datos</div>';document.getElementById(map[tab].id).innerHTML=h;return;}for(var i=0;i<ranking.length;i++){var cn=i===0?'rn':i===1?'rn b':'rn c';h+='<div class="rrow"><div class="'+cn+'">'+(i+1)+'</div><div class="rb"><div class="rl">'+ranking[i][0]+'</div><div class="rbb"><div class="rbf" style="width:'+(ranking[i][1]/max*100).toFixed(0)+'%"></div></div></div><div class="rc">'+ranking[i][1]+'</div></div>';}document.getElementById(map[tab].id).innerHTML=h;});}
+function rProd(rows){var map={curso:{id:'pCurso',lbl:'Cursos'},carrera:{id:'pCarrera',lbl:'Carreras'},diplomatura:{id:'pDiplo',lbl:'Diplomaturas'},coderpro:{id:'pPro',lbl:'CoderPRO / Membresía PRO'}};Object.keys(map).forEach(function(tab){var filtered=rows.filter(function(r){return (r.p||'').toLowerCase()===tab;}),ranking=cntNorm(filtered,tab==='coderpro'?'t':'d').slice(0,6),max=ranking.length?ranking[0][1]:1;var h='<div class="ptl">'+map[tab].lbl+'<span>'+filtered.length+'</span></div>';if(!ranking.length){h+='<div class="empty">Sin datos</div>';document.getElementById(map[tab].id).innerHTML=h;return;}for(var i=0;i<ranking.length;i++){var cn=i===0?'rn':i===1?'rn b':'rn c';h+='<div class="rrow"><div class="'+cn+'">'+(i+1)+'</div><div class="rb"><div class="rl">'+ranking[i][0]+'</div><div class="rbb"><div class="rbf" style="width:'+(ranking[i][1]/max*100).toFixed(0)+'%"></div></div></div><div class="rc">'+ranking[i][1]+'</div></div>';}document.getElementById(map[tab].id).innerHTML=h;});}
 function rIns(rows,prows,tot,ptot,mnt,pmnt){
   var el=document.getElementById('igrd');
   if(tot===0){el.innerHTML='<div class="empty">Sin datos para el período seleccionado</div>';return;}
