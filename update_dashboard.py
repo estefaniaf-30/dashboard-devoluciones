@@ -75,6 +75,11 @@ records = []
 for row in reader:
     prod_raw = row.get(col_prod, '') if col_prod else ''
     prod = norm_prod(prod_raw)
+    # CoderPRO / Membresia PRO (Producto = Servicio) SI se cuentan
+    if prod in ('servicio', 'servicios'):
+        _det = (row.get(col_det, '') if col_det else '').lower()
+        if 'coderpro' in _det or 'membres' in _det:
+            prod = 'coderpro'
     if prod in EXCLUIR:
         continue
     fecha = norm_fecha(row.get(col_fecha, '') if col_fecha else '')
